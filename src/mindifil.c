@@ -37,6 +37,7 @@ cleanup:
 int32_t mindi_next_event(
    uint8_t* midi_bytes, uint32_t midi_bytes_sz, uint32_t offset
 ) {
+   int32_t evt_sz = 0;
 
    if(
       'M' == midi_bytes[offset] &&
@@ -46,9 +47,16 @@ int32_t mindi_next_event(
    ) {
       /* Given offset is track start, so first event comes after the header. */
       offset += MINDI_CHUNK_HEADER_SZ;
+
    } else {
-      /* TODO */
-      offset = MINDI_ERROR_INVALID_TRACK;
+      /* Assume  offset points to an event. */
+      evt_sz = mindi_event_sz( midi_bytes, midi_bytes_sz, offset );
+      if( 0 > evt_sz ) {
+         /* Pass along error. */
+         offset = evt_sz;
+         goto cleanup;
+      }
+      offset += evt_sz;
    }
 
    /* Ensure event is within bounds. */

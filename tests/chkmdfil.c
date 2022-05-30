@@ -45,7 +45,7 @@ START_TEST( test_midi_file_events ) {
    while( 0 < evt_offset && (evt_offset - track_offset) < track_sz ) {
       evt_offset = mindi_next_event( midi_bytes, midi_bytes_sz, evt_offset );
 
-      printf( "eo: %d to: %d sz: %d\n", evt_offset, track_offset, track_sz );
+      printf( "eo: %d to: %d tsz: %d\n", evt_offset, track_offset, track_sz );
 
    }
 
