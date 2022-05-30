@@ -35,7 +35,7 @@ cleanup:
 }
 
 int32_t mindi_next_event(
-   uint8_t* midi_bytes, uint32_t midi_bytes_sz, uint32_t offset
+   uint8_t* midi_bytes, uint32_t midi_bytes_sz, uint32_t offset, uint8_t prev
 ) {
    int32_t evt_sz = 0;
 
@@ -50,7 +50,7 @@ int32_t mindi_next_event(
 
    } else {
       /* Assume  offset points to an event. */
-      evt_sz = mindi_event_sz( midi_bytes, midi_bytes_sz, offset );
+      evt_sz = mindi_event_sz( midi_bytes, midi_bytes_sz, offset, prev );
       if( 0 > evt_sz ) {
          /* Pass along error. */
          offset = evt_sz;

@@ -53,7 +53,7 @@ int32_t mindi_next_chunk(
    uint8_t* midi_bytes, uint32_t midi_bytes_sz, uint32_t offset );
 
 int32_t mindi_next_event(
-   uint8_t* midi_bytes, uint32_t midi_bytes_sz, uint32_t offset );
+   uint8_t* midi_bytes, uint32_t midi_bytes_sz, uint32_t offset, uint8_t prev );
 
 #endif /* !MINDIFIL_H */
 
