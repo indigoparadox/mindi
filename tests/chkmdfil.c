@@ -30,6 +30,33 @@ START_TEST( test_midi_file_chunks ) {
 }
 END_TEST
 
+START_TEST( test_midi_file_events ) {
+   int32_t track_offset = 0,
+      evt_offset = 0,
+      track_sz = 0;
+   uint32_t evt_data_offset = 0,
+      evt_time = 0;
+
+   /* Setup the track and initial event offsets. */
+   track_offset = mindi_next_chunk( midi_bytes, midi_bytes_sz, 0 );
+   track_sz = mindi_chunk_sz( midi_bytes, track_offset );
+   evt_offset = track_offset;
+
+   /* Cycle through track events. */
+   while( 0 < evt_offset && (evt_offset - track_offset) < track_sz ) {
+      evt_offset = mindi_next_event( midi_bytes, midi_bytes_sz, evt_offset );
+
+      printf( "eo: %d to: %d sz: %d\n", evt_offset, track_offset, track_sz );
+
+      mindi_get_event(
+         midi_bytes, midi_bytes_sz, evt_offset, &evt_time, &evt_data_offset );
+
+      printf( "ts: %d\n", evt_time );
+   }
+
+}
+END_TEST
+
 Suite* midi_file_suite( void ) {
    Suite* s;
    TCase* tc_core;
@@ -42,6 +69,7 @@ Suite* midi_file_suite( void ) {
    tcase_add_checked_fixture( tc_core, setup_midi_file, teardown_midi_file );
    tcase_add_test( tc_core, test_midi_file_header );
    tcase_add_test( tc_core, test_midi_file_chunks );
+   tcase_add_test( tc_core, test_midi_file_events );
 
    suite_add_tcase( s, tc_core );
 

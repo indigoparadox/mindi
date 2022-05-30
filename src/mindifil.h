@@ -1,8 +1,10 @@
 
-#ifndef MINDI_H
-#define MINDI_H
+#ifndef MINDIFIL_H
+#define MINDIFIL_H
 
 #include <stdint.h>
+
+#include "mindievt.h"
 
 /**
  * \file mindifil.h
@@ -58,7 +60,14 @@
  *        chunk, or the offset of the first chunk of the previous offset is 0.
  */
 int32_t mindi_next_chunk(
-   uint8_t* midi_bytes, uint32_t midi_bytes_sz, uint32_t prev_offset );
+   uint8_t* midi_bytes, uint32_t midi_bytes_sz, uint32_t offset );
 
-#endif /* MINDI_H */
+int32_t mindi_next_event(
+   uint8_t* midi_bytes, uint32_t midi_bytes_sz, uint32_t offset );
+
+int32_t mindi_get_event(
+   uint8_t* midi_bytes, uint32_t midi_bytes_sz, uint32_t evt_offset,
+   uint32_t* p_time, uint32_t* p_evt_data_offset );
+
+#endif /* !MINDIFIL_H */
 
