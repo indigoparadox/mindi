@@ -2,6 +2,7 @@
 #include "chksetup.h"
 
 #include "../src/mindifil.h"
+#include "../src/mindievt.h"
 
 #include <stdio.h>
 
@@ -34,8 +35,6 @@ START_TEST( test_midi_file_events ) {
    int32_t track_offset = 0,
       evt_offset = 0,
       track_sz = 0;
-   uint32_t evt_data_offset = 0,
-      evt_time = 0;
 
    /* Setup the track and initial event offsets. */
    track_offset = mindi_next_chunk( midi_bytes, midi_bytes_sz, 0 );
@@ -48,10 +47,6 @@ START_TEST( test_midi_file_events ) {
 
       printf( "eo: %d to: %d sz: %d\n", evt_offset, track_offset, track_sz );
 
-      mindi_get_event(
-         midi_bytes, midi_bytes_sz, evt_offset, &evt_time, &evt_data_offset );
-
-      printf( "ts: %d\n", evt_time );
    }
 
 }

@@ -1,8 +1,8 @@
 
 # vim: ft=make noexpandtab
 
-OBJECTS := src/mindifil.o
-OBJECTS_TESTS := tests/check.o tests/chkmdfil.o tests/chksetup.o
+OBJECTS := src/mindifil.o src/mindievt.o
+OBJECTS_TESTS := tests/check.o tests/chkmdfil.o tests/chksetup.o tests/chkmdevt.o
 
 CC := gcc
 MD := mkdir -v -p

@@ -13,11 +13,13 @@
    srunner_free( sr_ ## suite_name );
 
 main_add_test_proto( midi_file )
+main_add_test_proto( midi_event )
 
 int main( void ) {
    int number_failed = 0;
 
    main_add_test( midi_file );
+   main_add_test( midi_event );
 
    return( number_failed == 0 ) ? 0 : 1;
 }
