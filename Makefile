@@ -12,8 +12,6 @@ CFLAGS := -g -pg -Wall -Werror
 BINDIR := bin
 OBJDIR := obj
 
-$(BINDIR)/libmindi.a: OBJDIR := obj/linux
-
 test_mindi: LDFLAGS += $(shell pkg-config --libs check) -L$(BINDIR)/static -lmindi
 test_mindi: CFLAGS += -DCHECK -g
 

@@ -1,15 +1,36 @@
 
 #include "mindifil.h"
 
-/**
- * \brief  Given a chunk, get the chunk following it in the MIDI stream.
- */
-uint32_t next_chunk(
-   uint8_t* midi_bytes, uint32_t midi_bytes_sz, uint32_t prev_offset
+int32_t mindi_next_chunk(
+   uint8_t* midi_bytes, uint32_t midi_bytes_sz, uint32_t offset
 ) {
 
-   /* TODO */
+   if( 0 == offset ) {
+      /* Return the offset of the first chunk. */
+      offset = mindi_header_sz( midi_bytes );
+   } else {
+      offset += mindi_chunk_sz( midi_bytes, offset );
+   }
 
-   return 0;
+   /* Ensure track is within bounds. */
+   if( offset >= midi_bytes_sz ) {
+      offset = MINDI_ERROR_OFFSET_OOB;
+      goto cleanup;
+   }
+
+   /* Ensure track is valid. */
+   if(
+      'M' != midi_bytes[offset] ||
+      'T' != midi_bytes[offset + 1] ||
+      'r' != midi_bytes[offset + 2] ||
+      'k' != midi_bytes[offset + 3]
+   ) {
+      offset = MINDI_ERROR_INVALID_TRACK;
+      goto cleanup;
+   }
+
+cleanup:
+
+   return offset;
 }
 
