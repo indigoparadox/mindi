@@ -15,6 +15,7 @@
 
 /**
  * \addtogroup mindi_errors Errors
+ * \brief Errors that can occur during the parsing of MIDI data.
  * \{
  */
 
@@ -27,6 +28,7 @@
 /*! \brief Return error: invalid event data found. */
 #define MINDI_ERROR_INVALID_EVENT -3
 
+/*! \brief Return error: track has ended. */
 #define MINDI_ERROR_TRACK_END -4
 
 /*! \} */
@@ -36,6 +38,13 @@
 
 /*! \brief Swap the endianness of a 16-bit unsigned integer. */
 #define mindi_endian_swap_16( num ) ((num>>8) | (num<<8))
+
+/**
+ * \addtogroup midi_events MIDI Events
+ * \brief Information on navigating MIDI events, either one at a time in a
+ *        buffer or in the context of a Standard MIDI File.
+ * \{
+ */
 
 /**
  * \brief Return the value of a variable-length multi-byte number
@@ -69,9 +78,22 @@ int32_t mindi_event_multi_byte_sz(
 int32_t mindi_event_sz(
    uint8_t* midi_bytes, uint32_t midi_bytes_sz, uint32_t offset, uint8_t prev );
 
+/**
+ * \brief Parse a MIDI event at the given offset in a byte stream.
+ * \param midi_bytes MIDI byte stream (event packet or MIDI file).
+ * \param midi_bytes_sz Size of the MIDI byte stream buffer.
+ * \param offset Offset of the event in the byte stream (0 for single packet).
+ * \param prev MIDI message type of the event before this one.
+ * \param params_out Pointer to a buffer to place the parameters of the MIDI
+ *        message in.
+ * \param params_out Size of the params_out buffer in bytes.
+ * \return The MIDI message status byte.
+ */
 uint8_t mindi_event_type(
    uint8_t* midi_bytes, uint32_t midi_bytes_sz, uint32_t offset,
    uint8_t prev, uint8_t* params_out, uint8_t params_out_sz );
+
+/*! \} */
 
 #endif /* !MINDIEVT_H */
 
