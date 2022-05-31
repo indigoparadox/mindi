@@ -10,11 +10,11 @@
 #include <stdlib.h>
 
 int main( int argc, char** argv ) {
-   int midi_handle = 0,
+   int midi_handle = -1,
       track_seek = -1,
       track_iter = 0;
    struct stat st;
-   uint8_t* midi_map = NULL,
+   uint8_t* midi_map = MAP_FAILED,
       midi_params[10] = { 0 },
       evt_type = 0;
    int32_t track_offset = 0,
@@ -78,7 +78,7 @@ cleanup:
       close( midi_handle );
    }
 
-   if( NULL != midi_map ) {
+   if( MAP_FAILED != midi_map ) {
       munmap( midi_map, midi_bytes_sz );
    }
 

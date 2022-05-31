@@ -4,6 +4,11 @@ Extremely minimal MIDI library, for old or otherwise resource-limited systems.
 
 Currently a work in progress and very volatile.
 
+## Dependencies
+
+- Check framework:
+`sudo apt install check`
+
 ## References
 
 - https://web.archive.org/web/20140216225718/http://www.sonicspot.com/guide/midifiles.html
