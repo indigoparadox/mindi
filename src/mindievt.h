@@ -27,6 +27,8 @@
 /*! \brief Return error: invalid event data found. */
 #define MINDI_ERROR_INVALID_EVENT -3
 
+#define MINDI_ERROR_TRACK_END -4
+
 /*! \} */
 
 /*! \brief Swap the endianness of a 32-bit unsigned integer. */
@@ -69,7 +71,7 @@ int32_t mindi_event_sz(
 
 uint8_t mindi_event_type(
    uint8_t* midi_bytes, uint32_t midi_bytes_sz, uint32_t offset,
-   uint8_t prev, uint8_t* p_param_0, uint8_t* p_param_1 );
+   uint8_t prev, uint8_t* params_out, uint8_t params_out_sz );
 
 #endif /* !MINDIEVT_H */
 

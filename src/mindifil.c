@@ -37,7 +37,15 @@ cleanup:
 int32_t mindi_next_event(
    uint8_t* midi_bytes, uint32_t midi_bytes_sz, uint32_t offset, uint8_t prev
 ) {
-   int32_t evt_sz = 0;
+   int32_t evt_sz = 0,
+      time_sz = 0;
+
+   time_sz = mindi_event_multi_byte_sz(
+      &(midi_bytes[offset]), midi_bytes_sz - offset, 0 );
+   if( offset + time_sz + 2 > midi_bytes_sz || offset + 4 > midi_bytes_sz ) {
+      offset = MINDI_ERROR_OFFSET_OOB;
+      goto cleanup;
+   }
 
    if(
       'M' == midi_bytes[offset] &&
@@ -47,6 +55,14 @@ int32_t mindi_next_event(
    ) {
       /* Given offset is track start, so first event comes after the header. */
       offset += MINDI_CHUNK_HEADER_SZ;
+
+   } else if(
+      0xff == midi_bytes[offset + time_sz] &&
+      0x2f == midi_bytes[offset + time_sz + 1]
+   ) {
+      /* Current event is the end of the track. */
+      offset = MINDI_ERROR_TRACK_END;
+      goto cleanup;
 
    } else {
       /* Assume  offset points to an event. */

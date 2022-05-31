@@ -31,8 +31,6 @@ int32_t mindi_event_multi_byte_sz(
 ) {
    int32_t sz = 0;
 
-   printf( "mbo: %d\n", offset );
-
    /* Skip time bytes until one doesn't start with 0x80. */
    do {
       sz++;
@@ -86,7 +84,6 @@ int32_t mindi_event_sz(
 
       meta_sz = 
          mindi_event_multi_byte( midi_bytes, midi_bytes_sz, offset + 2 );
-
       sz += 2 + meta_sz; /* Meta type, param sz, param. */
 
    } else if( 0xd0 == (evt_type & 0xd0) || 0xc0 == (evt_type & 0xc0) ) {
@@ -104,9 +101,12 @@ cleanup:
 
 uint8_t mindi_event_type(
    uint8_t* midi_bytes, uint32_t midi_bytes_sz, uint32_t offset,
-   uint8_t prev, uint8_t* p_param_0, uint8_t* p_param_1
+   uint8_t prev, uint8_t* params_out, uint8_t params_out_sz
 ) {
-   uint8_t evt_type = 0;
+   uint8_t evt_type = 0,
+      params_sz = 0,
+      i = 0,
+      evt_byte_ct = 1;
    int32_t time_sz = 0;
 
    time_sz = mindi_event_multi_byte_sz( midi_bytes, midi_bytes_sz, offset );
@@ -119,24 +119,30 @@ uint8_t mindi_event_type(
    if( 0x80 <= midi_bytes[offset + time_sz] ) {
       evt_type = midi_bytes[offset + time_sz];
    } else {
+      /* Missing event type assumed. */
       evt_type = prev;
+      evt_byte_ct = 0; /* Omitted. */
    }
 
-   if( 0xD0 == evt_type ) {
-      if( offset + time_sz + 1 >= midi_bytes_sz ) {
-         /* Give up due to out of bounds. */
-         goto cleanup;
-      }
-      *p_param_0 = midi_bytes[offset + time_sz + 1];
-
+   /* Params count based on event type. */
+   if( 0xff == evt_type ) {
+      /* Meta type. */
+      params_sz = mindi_event_multi_byte(
+         midi_bytes, midi_bytes_sz, offset + time_sz + evt_byte_ct + 1 );
+   } else if( 0xD0 == evt_type ) {
+      params_sz = 1;
    } else {
-      if( offset + time_sz + 2 >= midi_bytes_sz ) {
-         /* Give up due to out of bounds. */
-         goto cleanup;
-      }
-      *p_param_0 = midi_bytes[offset + time_sz + 1];
-      *p_param_1 = midi_bytes[offset + time_sz + 2];
+      params_sz = 2;
+   }
 
+   if( offset + time_sz + evt_byte_ct + params_sz >= midi_bytes_sz ) {
+      /* Give up due to out of bounds. */
+      goto cleanup;
+   }
+
+   /* Copy params to output buffer. */
+   for( i = 0 ; params_sz > i ; i++ ) {
+      params_out[i] = midi_bytes[offset + time_sz + evt_byte_ct + i];
    }
 
 cleanup:

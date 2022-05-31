@@ -15,7 +15,10 @@ OBJDIR := obj
 test_mindi: LDFLAGS += $(shell pkg-config --libs check) -L$(BINDIR)/static -lmindi
 test_mindi: CFLAGS += -DCHECK -g
 
-all: $(BINDIR)/static/libmindi.a $(BINDIR)/shared/libmindi.so test_mindi
+all: $(BINDIR)/static/libmindi.a $(BINDIR)/shared/libmindi.so test_mindi mididump
+
+mididump: src/main.o $(BINDIR)/static/libmindi.a
+	$(CC) -o $@ $< -L$(BINDIR)/static -lmindi $(LDFLAGS)
 
 test_mindi: $(BINDIR)/static/libmindi.a $(addprefix $(OBJDIR)/,$(OBJECTS_TESTS))
 	$(MD) $(dir $@)

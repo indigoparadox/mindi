@@ -42,6 +42,9 @@ uint32_t test_event_szs[TEST_EVT_CT] =
 uint8_t test_event_types[TEST_EVT_CT] =
    { 0xff, 0xff, 0xff, 0xb3, 0xc3, 0xb3, 0xb3, 0xb3, 0xb3, 0xff, 0x90, 0x80 };
 
+uint8_t test_event_param_0s[TEST_EVT_CT] =
+   { 0x58, 0x59, 0x51, 0x79, 0x30, 0x07, 0x0a, 0x5b, 0x5d, 0x21, 0x26, 0x26 };
+
 START_TEST( test_midi_event_time ) {
    uint32_t evt_time = 0;
    
@@ -79,10 +82,9 @@ START_TEST( test_midi_event_sz ) {
 END_TEST
 
 START_TEST( test_midi_event_type ) {
-   uint8_t param_0 = 0,
-      param_1 = 0,
-      evt_prev = 0,
-      evt_type = 0;
+   uint8_t evt_prev = 0,
+      evt_type = 0,
+      params[10] = { 0 };
 
    if( 0 == _i ) {
       evt_prev = 0;
@@ -92,9 +94,10 @@ START_TEST( test_midi_event_type ) {
    }
    
    evt_type = mindi_event_type(
-      test_events[_i], TEST_EVT_SZ, 0, evt_prev, &param_0, &param_1 );
+      test_events[_i], TEST_EVT_SZ, 0, evt_prev, params, 10 );
 
    ck_assert_int_eq( evt_type, test_event_types[_i] );
+   ck_assert_int_eq( params[0], test_event_param_0s[_i] );
 }
 END_TEST
 
