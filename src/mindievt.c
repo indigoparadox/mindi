@@ -140,6 +140,11 @@ uint8_t mindi_event_type(
       goto cleanup;
    }
 
+   if( params_sz > params_out_sz ) {
+      /* Give up due to out of bounds. */
+      goto cleanup;
+   }
+
    /* Copy params to output buffer. */
    for( i = 0 ; params_sz > i ; i++ ) {
       params_out[i] = midi_bytes[offset + time_sz + evt_byte_ct + i];

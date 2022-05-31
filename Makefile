@@ -41,5 +41,6 @@ $(OBJDIR)/%.o: %.c
 clean:
 	rm -rf obj; \
 	rm -f test_mindi; \
-	rm -rf bin
-
+	rm -rf bin; \
+	rm -f src/main.o; \
+	rm -f mididump
