@@ -17,7 +17,7 @@ test_mindi: CFLAGS += -DCHECK -g
 
 all: $(BINDIR)/static/libmindi.a $(BINDIR)/shared/libmindi.so test_mindi mididump
 
-mididump: src/main.o $(BINDIR)/static/libmindi.a
+mididump: $(OBJDIR)/src/main.o $(BINDIR)/static/libmindi.a
 	$(CC) -o $@ $< -L$(BINDIR)/static -lmindi $(LDFLAGS)
 
 test_mindi: $(BINDIR)/static/libmindi.a $(addprefix $(OBJDIR)/,$(OBJECTS_TESTS))
@@ -42,5 +42,5 @@ clean:
 	rm -rf obj; \
 	rm -f test_mindi; \
 	rm -rf bin; \
-	rm -f src/main.o; \
 	rm -f mididump
+

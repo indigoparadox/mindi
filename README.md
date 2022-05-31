@@ -6,8 +6,7 @@ Currently a work in progress and very volatile.
 
 ## Dependencies
 
-- Check framework:
-`sudo apt install check`
+- Check framework, for running tests: `sudo apt install check`
 
 ## References
 
