@@ -1,34 +1,37 @@
 
 # vim: ft=make noexpandtab
 
-OBJECTS := src/mindifil.o src/mindievt.o
-OBJECTS_TESTS := tests/check.o tests/chkmdfil.o tests/chksetup.o tests/chkmdevt.o
-
-CC := gcc
-MD := mkdir -v -p
-
-CFLAGS := -g -pg -Wall -Werror
-
 BINDIR := bin
 OBJDIR := obj
+
+OBJECTS := $(OBJDIR)/src/mindifil.o $(OBJDIR)/src/mindievt.o
+OBJECTS_TESTS := \
+	$(OBJDIR)/tests/check.o \
+	$(OBJDIR)/tests/chkmdfil.o \
+	$(OBJDIR)/tests/chksetup.o \
+	$(OBJDIR)/tests/chkmdevt.o
+
+MD := mkdir -v -p
+
+CFLAGS := -Wall -Werror -fpic
 
 test_mindi: LDFLAGS += $(shell pkg-config --libs check) -L$(BINDIR)/static -lmindi
 test_mindi: CFLAGS += -DCHECK -g
 
 all: $(BINDIR)/static/libmindi.a $(BINDIR)/shared/libmindi.so test_mindi mididump
 
-mididump: $(OBJDIR)/src/main.o $(BINDIR)/static/libmindi.a
-	$(CC) -o $@ $< -L$(BINDIR)/static -lmindi $(LDFLAGS)
+mididump: $(OBJDIR)/src/main.o | $(BINDIR)/static/libmindi.a
+	$(CC) -o $@ $^ -L$(BINDIR)/static -lmindi $(LDFLAGS)
 
-test_mindi: $(BINDIR)/static/libmindi.a $(addprefix $(OBJDIR)/,$(OBJECTS_TESTS))
+test_mindi: $(OBJECTS_TESTS) | $(BINDIR)/static/libmindi.a
 	$(MD) $(dir $@)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
-$(BINDIR)/static/libmindi.a: $(addprefix $(OBJDIR)/,$(OBJECTS))
+$(BINDIR)/static/libmindi.a: $(OBJECTS)
 	$(MD) $(dir $@)
 	$(AR) rcs $@ $^
 
-$(BINDIR)/shared/libmindi.so: $(addprefix $(OBJDIR)/,$(OBJECTS))
+$(BINDIR)/shared/libmindi.so: $(OBJECTS)
 	$(MD) $(dir $@)
 	$(CC) -shared -o $@ $^
 
@@ -39,8 +42,8 @@ $(OBJDIR)/%.o: %.c
 .PHONY: clean
 
 clean:
-	rm -rf obj; \
+	rm -rf $(OBJDIR); \
 	rm -f test_mindi; \
-	rm -rf bin; \
+	rm -rf $(BINDIR); \
 	rm -f mididump
 
