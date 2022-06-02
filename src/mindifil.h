@@ -2,8 +2,6 @@
 #ifndef MINDIFIL_H
 #define MINDIFIL_H
 
-#include <stdint.h>
-
 #include "mindievt.h"
 
 /**

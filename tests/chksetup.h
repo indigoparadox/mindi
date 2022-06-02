@@ -2,7 +2,7 @@
 #ifndef CHKSETUP_H
 #define CHKSETUP_H
 
-#include <stdint.h>
+#include "../src/mindiint.h"
 
 #include <check.h>
 

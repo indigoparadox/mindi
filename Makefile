@@ -13,7 +13,7 @@ OBJECTS_TESTS := \
 
 MD := mkdir -v -p
 
-CFLAGS := -Wall -Werror -fpic -DUSE_ALSA
+CFLAGS := -Wall -Werror -fpic -DUSE_ALSA -DUSE_STDINT
 
 test_mindi: LDFLAGS += $(shell pkg-config --libs check) -L$(BINDIR)/static -lmindi
 test_mindi: CFLAGS += -DCHECK -g
