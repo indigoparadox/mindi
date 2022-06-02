@@ -13,6 +13,9 @@
 /*! \brief Bitmask to determine if a number is multi-byte. */
 #define MINDI_MASK_MULTI_BYTE 0x7f
 
+/*! \brief Binary AND this mask with a status byte to get its channel. */
+#define MINDI_MASK_STATUS_CHANNEL 0x0f
+
 /**
  * \addtogroup mindi_errors Errors
  * \brief Errors that can occur during the parsing of MIDI data.
@@ -33,6 +36,12 @@
 
 /*! \} */
 
+/**
+ * \addtogroup mindi_event_statuses Event Status Bytes
+ * \brief Binary AND these with a status byte to get the type of event.
+ * \{
+ */
+
 #define MINDI_STATUS_NOTE_OFF 0x80
 
 #define MINDI_STATUS_NOTE_ON 0x90
@@ -50,6 +59,8 @@
 #define MINDI_STATUS_SYSEX 0xf0
 
 #define MINDI_STATUS_META 0xff
+
+/*! \} */
 
 /*! \brief Swap the endianness of a 32-bit unsigned integer. */
 #define mindi_endian_swap_32( num ) (((num>>24)&0xff) | ((num<<8)&0xff0000) | ((num>>8)&0xff00) | ((num<<24)&0xff000000))
