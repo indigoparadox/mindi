@@ -68,6 +68,8 @@
  */
 #define mindi_header_tracks( bytes ) ((mindi_endian_swap_16( *((uint16_t*)(&bytes[MINDI_HEADER_TRACKS_OFFSET])))) & 0xffff)
 
+#define mindi_header_tdiv( bytes ) (MINDI_HEADER_TDIV_OFFSET + sizeof( uint16_t ) + (mindi_endian_swap_16( *((uint32_t*)(&bytes[MINDI_HEADER_TDIV_OFFSET])))))
+
 /*! \} */
 
 /**

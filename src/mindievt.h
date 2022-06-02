@@ -33,6 +33,24 @@
 
 /*! \} */
 
+#define MINDI_STATUS_NOTE_OFF 0x80
+
+#define MINDI_STATUS_NOTE_ON 0x90
+
+#define MINDI_STATUS_AFTERTOUCH 0xa0
+
+#define MINDI_STATUS_CONTROLLER 0xb0
+
+#define MINDI_STATUS_PROGRAM 0xc0
+
+#define MINDI_STATUS_PRESSURE 0xd0
+
+#define MINDI_STATUS_PITCH 0xe0
+
+#define MINDI_STATUS_SYSEX 0xf0
+
+#define MINDI_STATUS_META 0xff
+
 /*! \brief Swap the endianness of a 32-bit unsigned integer. */
 #define mindi_endian_swap_32( num ) (((num>>24)&0xff) | ((num<<8)&0xff0000) | ((num>>8)&0xff00) | ((num<<24)&0xff000000))
 
