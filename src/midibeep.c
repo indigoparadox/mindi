@@ -3,15 +3,15 @@
 
 #include <stdio.h>
 #include <assert.h>
+#include <stdlib.h>
+#include <alsa/asoundlib.h>
+
+#ifdef USE_MMAP
 #include <sys/mman.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-#include <stdlib.h>
-#include <sys/ioctl.h>
-#include <linux/kd.h>
-#include <signal.h>
-#include <alsa/asoundlib.h>
+#endif /* USE_MMAP */
 
 #define MIDI_PARAMS_SZ 10
 
@@ -54,13 +54,19 @@ void beep( int freq_hz, int duration_ms ) {
 }
 
 int main( int argc, char** argv ) {
-   int midi_handle = -1,
-      track_seek = -1,
+#ifdef USE_MMAP
+   int midi_handle = -1;
+   struct stat st;
+   uint8_t* midi_bytes = MAP_FAILED;
+#else
+   uint8_t* midi_bytes = NULL;
+   FILE* midi_file = NULL;
+   int32_t midi_bytes_read = 0;
+#endif /* USE_MMAP */
+   int track_seek = -1,
       track_iter = 0,
       freq_hz_prev = -1;
-   struct stat st;
-   uint8_t* midi_map = MAP_FAILED,
-      midi_params[MIDI_PARAMS_SZ] = { 0 },
+   uint8_t midi_params[MIDI_PARAMS_SZ] = { 0 },
       evt_type = 0;
    int32_t track_offset = 0,
       evt_offset = 0,
@@ -79,25 +85,46 @@ int main( int argc, char** argv ) {
 
    track_seek = atoi( argv[2] );
 
+#ifdef USE_MMAP
+
    stat( argv[1], &st );
    midi_bytes_sz = st.st_size;
 
    midi_handle = open( argv[1], O_RDONLY, 0 );
    assert( 0 < midi_handle );
 
-   midi_map = mmap( NULL, midi_bytes_sz, PROT_READ, MAP_PRIVATE | MAP_POPULATE,
+   midi_bytes = mmap(
+      NULL, midi_bytes_sz, PROT_READ, MAP_PRIVATE | MAP_POPULATE,
       midi_handle, 0 );
-   assert( MAP_FAILED != midi_map );
+   assert( MAP_FAILED != midi_bytes );
 
-   ticks_per_qrtr = mindi_header_tdiv( midi_map );
+#else
+
+   midi_file = fopen( argv[1], "rb" );
+   assert( NULL != midi_file );
+
+   fseek( midi_file, 0, SEEK_END );
+   midi_bytes_sz = ftell( midi_file );
+   fseek( midi_file, 0, SEEK_SET );
+
+   midi_bytes = calloc( midi_bytes_sz, 1 );
+   assert( NULL != midi_bytes );
+
+   midi_bytes_read = fread( midi_bytes, 1, midi_bytes_sz, midi_file );
+   printf( "read %d of %d bytes\n", midi_bytes_read, midi_bytes_sz );
+   assert( midi_bytes_read == midi_bytes_sz );
+
+#endif /* USE_MMAP */
+
+   ticks_per_qrtr = mindi_header_tdiv( midi_bytes );
    us_per_tick = us_per_qrtr / ticks_per_qrtr;
 
    printf( "ticks per quarter: %d\n", ticks_per_qrtr );
 
    do {
       /* Setup the track and initial event offsets. */
-      track_offset = mindi_next_chunk( midi_map, midi_bytes_sz, track_offset );
-      track_sz = mindi_chunk_sz( midi_map, track_offset );
+      track_offset = mindi_next_chunk( midi_bytes, midi_bytes_sz, track_offset );
+      track_sz = mindi_chunk_sz( midi_bytes, track_offset );
       evt_offset = track_offset;
 
       if( track_seek != track_iter ) {
@@ -109,7 +136,7 @@ int main( int argc, char** argv ) {
       /* Cycle through track events. */
       while( 0 < evt_offset && (evt_offset - track_offset) < track_sz ) {
          evt_offset = mindi_next_event(
-            midi_map, midi_bytes_sz, evt_offset, evt_type );
+            midi_bytes, midi_bytes_sz, evt_offset, evt_type );
          if( 0 > evt_offset ) {
             if( MINDI_ERROR_TRACK_END == evt_offset ) {
                printf( "track %d finished\n", track_iter );
@@ -119,7 +146,7 @@ int main( int argc, char** argv ) {
 
          /* Get the time until next (this) event. */
          evt_time = mindi_event_multi_byte(
-            midi_map, midi_bytes_sz, evt_offset );
+            midi_bytes, midi_bytes_sz, evt_offset );
 
          if( 0 < freq_hz_prev ) {
             /* TODO: Play the previous event until this one. */
@@ -130,7 +157,7 @@ int main( int argc, char** argv ) {
 
          /* Queue up this event. */
          evt_type = mindi_event_type(
-            midi_map, midi_bytes_sz, evt_offset, evt_type, midi_params,
+            midi_bytes, midi_bytes_sz, evt_offset, evt_type, midi_params,
             MIDI_PARAMS_SZ );
 
          if( MINDI_STATUS_NOTE_ON == (MINDI_STATUS_NOTE_ON & evt_type) ) {
@@ -160,13 +187,27 @@ int main( int argc, char** argv ) {
 
 cleanup:
 
+#ifdef USE_MMAP
+
    if( 0 < midi_handle ) {
       close( midi_handle );
    }
 
-   if( MAP_FAILED != midi_map ) {
-      munmap( midi_map, midi_bytes_sz );
+   if( MAP_FAILED != midi_bytes ) {
+      munmap( midi_bytes, midi_bytes_sz );
    }
+
+#else
+
+   if( NULL != midi_file ) {
+      fclose( midi_file );
+   }
+
+   if( NULL != midi_bytes ) {
+      free( midi_bytes );
+   }
+
+#endif /* USE_MMAP */
 
    return 0;
 }
