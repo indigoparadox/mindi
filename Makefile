@@ -18,10 +18,13 @@ CFLAGS := -Wall -Werror -fpic
 test_mindi: LDFLAGS += $(shell pkg-config --libs check) -L$(BINDIR)/static -lmindi
 test_mindi: CFLAGS += -DCHECK -g
 
-all: $(BINDIR)/static/libmindi.a $(BINDIR)/shared/libmindi.so test_mindi mididump
+all: $(BINDIR)/static/libmindi.a $(BINDIR)/shared/libmindi.so test_mindi mididump midibeep
 
-mididump: $(OBJDIR)/src/main.o | $(BINDIR)/static/libmindi.a
+mididump: $(OBJDIR)/src/mididump.o | $(BINDIR)/static/libmindi.a
 	$(CC) -o $@ $^ -L$(BINDIR)/static -lmindi $(LDFLAGS)
+
+midibeep: $(OBJDIR)/src/midibeep.o | $(BINDIR)/static/libmindi.a
+	$(CC) -o $@ $^ -L$(BINDIR)/static -lmindi $(LDFLAGS) -lasound
 
 test_mindi: $(OBJECTS_TESTS) | $(BINDIR)/static/libmindi.a
 	$(MD) $(dir $@)
@@ -45,5 +48,6 @@ clean:
 	rm -rf $(OBJDIR); \
 	rm -f test_mindi; \
 	rm -rf $(BINDIR); \
-	rm -f mididump
+	rm -f mididump; \
+	rm -f midibeep
 
