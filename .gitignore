@@ -2,3 +2,7 @@ bin
 obj
 doc
 test_mindi
+midibeep
+mididump
+midibeep.exe
+objdos
