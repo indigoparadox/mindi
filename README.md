@@ -7,7 +7,7 @@ Currently a work in progress and very volatile.
 ## Dependencies
 
 - Check framework, for running tests: `sudo apt install check`
-- ALSA development libraries for beep playback: `sudo apt install libasound2-dev`
+- ALSA development libraries for beep playback on Linux (not required for DOS, see below): `sudo apt install libasound2-dev`
 
 ## DOS MIDI Player
 
