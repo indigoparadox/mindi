@@ -7,6 +7,8 @@
 
 #ifdef USE_ALSA
 #include <alsa/asoundlib.h>
+#elif defined( USE_DOS )
+#include <dos.h>
 #endif /* USE_ALSA */
 
 #ifdef USE_MMAP
@@ -58,6 +60,31 @@ void beep( int freq_hz, int duration_ms ) {
       }
    }
 #elif defined( USE_DOS )
+   uint32_t freq_division = 0;
+   uint8_t prev_keyb_status = 0;
+
+   /* TODO: Needs cleanup with constants for port numbers, bitmasks, etc. */
+
+   freq_division = 1193180 / freq_hz;
+
+   /* Set the programmable interrupt timer to the given frequency. */
+   outp( 0x43, 0xb6 );
+   outp( 0x42, (uint8_t)freq_division );
+   outp( 0x42, (uint8_t)(freq_division >> 8) );
+
+   /* Set keyboard controller status to enable PC speaker. */
+   prev_keyb_status = inp( 0x61 );
+   if( prev_keyb_status != (prev_keyb_status | 0x03) ) {
+      outp( 0x61, (prev_keyb_status | 0x03) );
+   }
+
+   delay( duration_ms );
+
+   /* Turn off the PC speaker. */
+   prev_keyb_status = inp( 0x61 );
+   outp( 0x61, (prev_keyb_status & 0xfc) );
+
+   /* TODO: Reset the PIT to its previous frequency. */
 
 #endif /* USE_ALSA || USE_DOS */
 }
