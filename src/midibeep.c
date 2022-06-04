@@ -29,28 +29,7 @@ const int gc_midi_tones[128] = { 8, 8, 9, 9, 10, 10, 11, 12, 12, 13, 14, 15, 16,
 
 #ifdef USE_ALSA
 snd_pcm_t* g_pcm = NULL;
-uint32_t g_s_launch = 0;
 #endif /* USE_ALSA */
-
-uint32_t get_ms() {
-#ifdef USE_ALSA
-   struct timespec spec;
-   uint32_t ms_out = 0,
-      ms_launch_delta = 0;
-   
-   clock_gettime( CLOCK_MONOTONIC, &spec );
-
-   /* Get the seconds since program launched. Multiply by 1000, so we want a
-    * smaller number than seconds since the epoch. */
-   ms_launch_delta = spec.tv_sec - g_s_launch;
-   ms_out += ms_launch_delta * 1000;
-   ms_out += spec.tv_nsec / 1000000;
-
-   return ms_out;
-#elif defined( USE_DOS )
-
-#endif /* USE_ALSA || USE_DOS */
-}
 
 void beep( int freq_hz, int duration_ms ) {
 #ifdef USE_ALSA
@@ -222,6 +201,7 @@ int main( int argc, char** argv ) {
 #ifdef USE_ALSA
                usleep( (event_ms - NOTE_MS) * 1000 );
 #elif defined( USE_DOS )
+               delay( event_ms - NOTE_MS );
 #endif /* USE_ALSA || USE_DOS */
             }
          }
