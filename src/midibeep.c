@@ -21,7 +21,7 @@
 
 #define MIDI_PARAMS_SZ 10
 
-#define NOTE_MS 200
+#define NOTE_MS_DEFAULT 200
 
 /* const float gc_midi_tones[128] = { 8.18, 8.66, 9.18, 9.72, 10.30, 10.91, 11.56, 12.25, 12.98, 13.75, 14.57, 15.43, 16.35, 17.32, 18.35, 19.45, 20.60, 21.83, 23.12, 24.50, 25.96, 27.50, 29.14, 30.87, 32.70, 34.65, 36.71, 38.89, 41.20, 43.65, 46.25, 49.00, 51.91, 55.00, 58.27, 61.74, 65.41, 69.30, 73.42, 77.78, 82.41, 87.31, 92.50, 98.00, 103.83, 110.00, 116.54, 123.47, 130.81, 138.59, 146.83, 155.56, 164.81, 174.61, 185.00, 196.00, 207.65, 220.00, 233.08, 246.94, 261.63, 277.18, 293.66, 311.13, 329.63, 349.23, 369.99, 392.00, 415.30, 440.00, 466.16, 493.88, 523.25, 554.37, 587.33, 622.25, 659.26, 698.46, 739.99, 783.99, 830.61, 880.00, 932.33, 987.77, 1046.50, 1108.73, 1174.66, 1244.51, 1318.51, 1396.91, 1479.98, 1567.98, 1661.22, 1760.00, 1864.66, 1975.53, 2093.00, 2217.46, 2349.32, 2489.02, 2637.02, 2793.83, 2959.96, 3135.96, 3322.44, 3520.00, 3729.31, 3951.07, 4186.01, 4434.92, 4698.64, 4978.03, 5274.04, 5587.65, 5919.91, 6271.93, 6644.88, 7040.00, 7458.62, 7902.13, 8372.02, 8869.84, 9397.27, 9956.06, 10548.08, 11175.30, 11839.82, 12543.85 }; */
 
@@ -98,7 +98,8 @@ int main( int argc, char** argv ) {
    struct stat st;
    uint8_t* midi_bytes = MAP_FAILED;
 #else
-   uint8_t* midi_bytes = NULL;
+   uint8_t* midi_bytes = NULL,
+      invalid_arg = 0;
    FILE* midi_file = NULL;
    int32_t midi_bytes_read = 0;
 #endif /* USE_MMAP */
@@ -110,27 +111,48 @@ int main( int argc, char** argv ) {
    int32_t track_offset = 0,
       evt_offset = 0,
       track_sz = 0,
-      midi_bytes_sz = 0;
+      midi_bytes_sz = 0,
+      i = 0;
    uint16_t ticks_per_qrtr = 48;
    uint32_t us_per_qrtr = 500000,
       us_per_tick = 0,
       evt_time = 0,
-      event_ms = 0;
+      event_ms = 0,
+      note_ms = NOTE_MS_DEFAULT;
+   char* filename = NULL;
 
-   if( 3 > argc ) {
-      fprintf( stderr, "usage: %s <midi file> <track number>\n", argv[0] );
+   /* Parse command line arguments. */
+   for( i = 1 ; argc > i ; i++ ) {
+      if( 0 == strncmp( "-n", argv[i], 2 ) && i + 1 < argc ) {
+         i++;
+         note_ms = atoi( argv[i] );
+
+      } else if( NULL == filename ) {
+         filename = argv[i];
+
+      } else if( 0 < atoi( argv[i] ) && 0 > track_seek ) {
+         track_seek = atoi( argv[i] );
+
+      } else {
+         invalid_arg = 1;
+      }
+   }
+
+   if( invalid_arg || NULL == filename || -1 == track_seek ) {
+      fprintf( stderr, "usage: %s [-n NOTE_MS] <midi file> <track number>\n",
+         argv[0] );
+      fprintf( stderr, 
+         "\nNOTE_MS: number of milliseconds to play each note.\n" );
       fprintf( stderr, "\ntrack selection mandatory; polyphony unsupported\n" );
       goto cleanup;
    }
 
-   track_seek = atoi( argv[2] );
-
 #ifdef USE_MMAP
 
-   stat( argv[1], &st );
+   stat( filename, &st );
    midi_bytes_sz = st.st_size;
 
-   midi_handle = open( argv[1], O_RDONLY, 0 );
+   midi_handle = open( filename, O_RDONLY, 0 );
    assert( 0 < midi_handle );
 
    midi_bytes = mmap(
@@ -140,7 +162,7 @@ int main( int argc, char** argv ) {
 
 #else
 
-   midi_file = fopen( argv[1], "rb" );
+   midi_file = fopen( filename, "rb" );
    assert( NULL != midi_file );
 
    fseek( midi_file, 0, SEEK_END );
@@ -194,14 +216,14 @@ int main( int argc, char** argv ) {
          if( 0 < freq_hz_prev ) {
             /* TODO: Play the previous event until this one. */
             event_ms = (evt_time * us_per_tick) / 10;
-            printf( "beep at %d hz for %d ms\n", freq_hz_prev, NOTE_MS );
-            beep( freq_hz_prev, NOTE_MS );
-            if( NOTE_MS < event_ms ) {
-               printf( "sleep for %d ms\n", event_ms - NOTE_MS );
+            printf( "beep at %d hz for %d ms\n", freq_hz_prev, note_ms );
+            beep( freq_hz_prev, note_ms );
+            if( note_ms < event_ms ) {
+               printf( "sleep for %d ms\n", event_ms - note_ms );
 #ifdef USE_ALSA
-               usleep( (event_ms - NOTE_MS) * 1000 );
+               usleep( (event_ms - note_ms) * 1000 );
 #elif defined( USE_DOS )
-               delay( event_ms - NOTE_MS );
+               delay( event_ms - note_ms );
 #endif /* USE_ALSA || USE_DOS */
             }
          }
