@@ -107,7 +107,8 @@ int main( int argc, char** argv ) {
       track_iter = 0,
       freq_hz_prev = -1;
    uint8_t midi_params[MIDI_PARAMS_SZ] = { 0 },
-      evt_type = 0;
+      evt_type = 0,
+      ch_out = 0;
    int32_t track_offset = 0,
       evt_offset = 0,
       track_sz = 0,
@@ -181,6 +182,10 @@ int main( int argc, char** argv ) {
    ticks_per_qrtr = mindi_header_tdiv( midi_bytes );
    us_per_tick = us_per_qrtr / ticks_per_qrtr;
 
+#ifdef USE_DOS
+   printf( "press C or Q keys to quit playback\n" );
+#endif /* USE_DOS */
+
    printf( "microseconds per quarter: %d\n", us_per_qrtr );
    printf( "ticks per quarter: %d\n", ticks_per_qrtr );
    printf( "microseconds per tick: %d\n", us_per_tick );
@@ -208,6 +213,18 @@ int main( int argc, char** argv ) {
             }
             break;
          }
+
+#ifdef USE_DOS
+         /* DOS doesn't do CTRL-C too well, so watch for key input. */
+         if( kbhit() ) {
+            ch_out = getch();
+            if( 'c' == ch_out || 'q' == ch_out ) {
+               printf( "quitting!\n" );
+               break;
+            }
+         }
+
+#endif /* USE_DOS */
 
          /* Get the time until next (this) event. */
          evt_time = mindi_event_multi_byte(
