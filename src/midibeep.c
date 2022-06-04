@@ -107,8 +107,10 @@ int main( int argc, char** argv ) {
       track_iter = 0,
       freq_hz_prev = -1;
    uint8_t midi_params[MIDI_PARAMS_SZ] = { 0 },
-      evt_type = 0,
-      ch_out = 0;
+#ifdef USE_DOS
+      ch_out = 0,
+#endif /* USE_DOS */
+      evt_type = 0;
    int32_t track_offset = 0,
       evt_offset = 0,
       track_sz = 0,
