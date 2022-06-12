@@ -1,0 +1,3 @@
+[submodule "lib/mbeep"]
+	path = lib/mbeep
+	url = https://github.com/indigoparadox/mbeep
