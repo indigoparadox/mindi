@@ -2,7 +2,7 @@
 #ifndef MINDIEVT_H
 #define MINDIEVT_H
 
-#include "mindiint.h"
+#include <mtypes.h>
 
 /**
  * \file mindievt.h

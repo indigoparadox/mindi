@@ -4,7 +4,10 @@
 BINDIR := bin
 OBJDIR := obj
 
-OBJECTS := $(OBJDIR)/src/mindifil.o $(OBJDIR)/src/mindievt.o
+OBJECTS := \
+	$(OBJDIR)/src/mindifil.o \
+	$(OBJDIR)/src/mindievt.o \
+	$(OBJDIR)/lib/mbeep/src/mbeep.o
 OBJECTS_TESTS := \
 	$(OBJDIR)/tests/check.o \
 	$(OBJDIR)/tests/chkmdfil.o \
@@ -13,12 +16,12 @@ OBJECTS_TESTS := \
 
 MD := mkdir -v -p
 
-CFLAGS := -Wall -Werror -fpic -DUSE_ALSA -DUSE_STDINT
+CFLAGS := -Wall -Werror -fpic -DPLATFORM_XLIB -Ilib/mbeep/src -Ilib/maug/src
 
 test_mindi: LDFLAGS += $(shell pkg-config --libs check) -L$(BINDIR)/static -lmindi
 test_mindi: CFLAGS += -DCHECK -g
 
-midibeep.exe: CFLAGS := -mm -os -hw -d0 -0 -DUSE_DOS -i=./src
+midibeep.exe: CFLAGS := -mm -os -hw -d0 -0 -DPLATFORM_DOS -i=./src
 midibeep.exe: CC := wcc
 midibeep.exe: LD := wcl
 midibeep.exe: LDFLAGS :=

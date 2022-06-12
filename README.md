@@ -6,6 +6,7 @@ Currently a work in progress and very volatile.
 
 ## Dependencies
 
+- Be sure to check out submodules! maug and mbeep are required for building.
 - Check framework, for running tests: `sudo apt install check`
 - ALSA development libraries for beep playback on Linux (not required for DOS, see below): `sudo apt install libasound2-dev`
 
