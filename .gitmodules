@@ -1,6 +1,6 @@
 [submodule "lib/mbeep"]
 	path = lib/mbeep
-	url = https://github.com/indigoparadox/mbeep
+	url = ../mbeep
 [submodule "lib/maug"]
 	path = lib/maug
-	url = https://github.com/indigoparadox/maug
+	url = ../maug
